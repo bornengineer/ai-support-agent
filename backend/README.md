@@ -12,6 +12,7 @@ PORT=4000
 
 # Database Configuration
 # Format: postgres://user:password@host:5432/database
+DATABASE_URL=postgres://user:password@localhost:5432/spur_chat
 
 # AI Provider Configuration
 # Get your API key from Groq Console: https://console.groq.com/
