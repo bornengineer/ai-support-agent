@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Box, Typography, IconButton, Tooltip, TextField, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Tooltip,
+  TextField,
+  Button,
+} from "@mui/material";
 import RestoreIcon from "@mui/icons-material/Restore";
 
 interface ChatHeaderProps {
@@ -7,7 +14,10 @@ interface ChatHeaderProps {
   onLoadLastSession: () => void;
 }
 
-export const ChatHeader: React.FC<ChatHeaderProps> = ({ onLoadHistory, onLoadLastSession }) => {
+export const ChatHeader: React.FC<ChatHeaderProps> = ({
+  onLoadHistory,
+  onLoadLastSession,
+}) => {
   const [sessionIdInput, setSessionIdInput] = useState("");
 
   return (
@@ -18,14 +28,25 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onLoadHistory, onLoadLas
         alignItems: "center",
         flexDirection: { xs: "column", sm: "row" },
         gap: 2,
-        mb: 1,
+        p: 2,
+        bgcolor: "background.paper",
+        borderBottom: "1px solid",
+        borderColor: "divider",
       }}
     >
-      <Typography variant="h6">AI Live Chat Agent</Typography>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Typography variant="h6" color="text.primary">
+          AI Live Chat Agent
+        </Typography>
+      </Box>
 
       <Box sx={{ display: "flex", gap: 1 }}>
-        <Tooltip title="Load Last Session">
-          <IconButton onClick={onLoadLastSession}>
+        <Tooltip title="Load last session">
+          <IconButton
+            onClick={onLoadLastSession}
+            color="primary"
+            disabled={!localStorage.getItem("lastSessionId")}
+          >
             <RestoreIcon />
           </IconButton>
         </Tooltip>
@@ -34,11 +55,13 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onLoadHistory, onLoadLas
           placeholder="Session ID"
           value={sessionIdInput}
           onChange={(e) => setSessionIdInput(e.target.value)}
-          sx={{ width: 200 }}
+          sx={{ width: 140 }}
         />
         <Button
-          variant="contained"
+          variant="outlined"
+          color="primary"
           onClick={() => onLoadHistory(sessionIdInput)}
+          sx={{ borderRadius: 2 }}
         >
           Load
         </Button>

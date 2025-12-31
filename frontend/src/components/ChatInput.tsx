@@ -52,12 +52,16 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, pending }) => {
       sx={{
         display: "flex",
         alignItems: "center",
-        gap: 1,
-        mt: 1,
-        p: 1,
-        bgcolor: (theme) =>
-          theme.palette.mode === "light" ? "#f5f5f5" : "#222",
-        borderRadius: 3,
+        gap: 1.5,
+        mt: 'auto',
+        p: 1.5,
+        bgcolor: "background.paper",
+        borderRadius: 4,
+        boxShadow: 3,
+        mx: 2,
+        mb: 2,
+        border: "1px solid",
+        borderColor: "divider",
       }}
     >
       <TextField
@@ -68,38 +72,43 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, pending }) => {
         onKeyDown={handleKeyDown}
         fullWidth
         multiline
-        minRows={1}
-        maxRows={4}
+        maxRows={3}
         disabled={pending}
+        variant="standard" // Remove default outline to blend
+        InputProps={{
+            disableUnderline: true,
+            sx: { px: 1, color: "text.primary" }
+        }}
         sx={{
-          "& .MuiInputBase-root": {
-            borderRadius: 3,
-            bgcolor: (theme) =>
-              theme.palette.mode === "light" ? "#fff" : "#333",
-            px: 2,
-          },
+            overflowY: 'auto'
         }}
       />
 
       <IconButton
-        color="primary"
         type="submit"
         disabled={pending || !input.trim()}
         sx={{
-          bgcolor: (theme) => theme.palette.primary.main,
+          bgcolor: "primary.main",
           color: "#fff",
           "&:hover": {
-            bgcolor: (theme) => theme.palette.primary.dark,
+            bgcolor: "primary.dark",
           },
           p: 1.5,
-          borderRadius: 2,
-          boxShadow: 2,
+          borderRadius: "50%",
+          transition: "transform 0.1s",
+          "&:active": {
+            transform: "scale(0.95)",
+          },
+          "&.Mui-disabled": {
+            bgcolor: "action.disabledBackground",
+            color: "action.disabled",
+          },
         }}
       >
         {pending ? (
-          <CircularProgress size={24} sx={{ color: "#fff" }} />
+          <CircularProgress size={24} sx={{ color: "inherit" }} />
         ) : (
-          <SendIcon fontSize="medium" />
+          <SendIcon fontSize="small" />
         )}
       </IconButton>
     </Box>

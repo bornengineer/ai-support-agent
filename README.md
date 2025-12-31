@@ -93,7 +93,8 @@ CREATE TABLE messages (
 
 ## 🏗️ Architecture Overview
 
-### Backend (`/backend`)
+### Backend (`/backend`) 
+(May take some time to load on first request as I am using render's free plan)
 - **Structure**: Layered architecture separating concerns.
   - **`routes/`**: API endpoints (e.g., `/chat/message`). Handles HTTP request/response validation.
   - **`services/`**: Core business logic.

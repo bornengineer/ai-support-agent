@@ -25,22 +25,45 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ msg }) => {
       sx={{
         display: "flex",
         justifyContent: isUser ? "flex-end" : "flex-start",
+        mb: 1,
       }}
     >
       <Paper
-        elevation={2}
+        elevation={0}
         sx={{
-          p: 1.1,
+          p: 2,
           maxWidth: "80%",
-          position: "relative",
-          bgcolor: isUser ? "#1e88e5" : "#ffffff",
-          color: isUser ? "#fff" : "#000",
-          mt: isUser ? 3 : 0,
-          mb: isUser ? 1 : 0,
+          borderRadius: 4,
+          borderTopRightRadius: isUser ? 4 : 20, // for tail effect
+          borderTopLeftRadius: isUser ? 20 : 4,
+          bgcolor: isUser ? "primary.main" : "background.paper",
+          color: isUser ? "primary.contrastText" : "text.primary",
+          boxShadow: 2,
         }}
       >
-        <span dangerouslySetInnerHTML={formatMsgHTML(msg.text)} />
-        <Typography sx={{ fontSize: 10, textAlign: "right", mt: 0.5 }}>
+        <Typography
+          variant="body1"
+          component="div"
+          sx={{
+            "& p": { m: 0 },
+            "& ul, & ol": { m: 0, pl: 2 },
+            "& a": { color: "inherit", textDecoration: "underline" },
+            lineHeight: 1.5,
+          }}
+        >
+          <span dangerouslySetInnerHTML={formatMsgHTML(msg.text)} />
+        </Typography>
+
+        <Typography
+          variant="caption"
+          sx={{
+            display: "block",
+            textAlign: "right",
+            mt: 0.5,
+            opacity: 0.7,
+            fontSize: "0.7rem",
+          }}
+        >
           {renderTime(msg.created_at)}
         </Typography>
       </Paper>

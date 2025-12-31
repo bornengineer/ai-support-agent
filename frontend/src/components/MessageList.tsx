@@ -23,11 +23,9 @@ export const MessageList: React.FC<MessageListProps> = ({ msgs, typing }) => {
         overflowY: "auto",
         display: "flex",
         flexDirection: "column",
-        gap: 1,
-        p: 1,
-        bgcolor: "#fafafa",
-        borderRadius: 2,
-        border: "1px solid #ddd",
+        gap: 2,
+        p: 2,
+        // Removed hardcoded bgcolor and border to let background shine through
       }}
     >
       {msgs.map((m, idx) => (
@@ -35,7 +33,7 @@ export const MessageList: React.FC<MessageListProps> = ({ msgs, typing }) => {
       ))}
 
       {typing && (
-        <Typography variant="body2" sx={{ color: "#777", ml: 1 }}>
+        <Typography variant="body2" sx={{ color: "#b9b9b9ff", ml: 1 }}>
           Agent is typing...
         </Typography>
       )}
