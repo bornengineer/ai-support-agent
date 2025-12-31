@@ -1,10 +1,10 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { pool } from "../services/db";
 import { generateReply } from "../services/llm";
 
 const router = express.Router();
 
-router.post("/message", async (req, res) => {
+router.post("/message", async (req: Request, res: Response) => {
   const { message, sessionId } = req.body;
   if (!message?.trim()) return res.status(400).json({ error: "Empty message" });
   const { v4: uuidv4 } = await import("uuid");
@@ -24,7 +24,7 @@ router.post("/message", async (req, res) => {
       `SELECT text FROM messages WHERE conversation_id = $1 ORDER BY id`,
       [convoId]
     );
-    const history = messagesRes.rows.map((r) => r.text);
+    const history = messagesRes.rows.map((r: { text: string }) => r.text);
 
     const reply = await generateReply(history);
 
@@ -39,7 +39,7 @@ router.post("/message", async (req, res) => {
   }
 });
 
-router.get("/history/:sessionId", async (req, res) => {
+router.get("/history/:sessionId", async (req: Request, res: Response) => {
   const { sessionId } = req.params;
   if (!sessionId) return res.status(400).json({ error: "No sessionId" });
 

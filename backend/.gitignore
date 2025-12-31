@@ -19,3 +19,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # Optional eslint cache
 .eslintcache
 
+/dist
