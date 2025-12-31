@@ -7,8 +7,10 @@ import {
   Paper,
   CircularProgress,
   Button,
+  Tooltip,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import RestoreIcon from "@mui/icons-material/Restore";
 import axios from "axios";
 import { marked } from "marked";
 
@@ -21,6 +23,7 @@ type Msg = {
 
 function App() {
   const [sessionId, setSessionId] = useState("");
+  const [sessionIdInput, setSessionIdInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
@@ -46,21 +49,37 @@ function App() {
     inputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    if (sessionId) {
+      localStorage.setItem("lastSessionId", sessionId);
+    }
+  }, [sessionId]);
+
   const truncateText = (text: string, maxLength = 2000) => {
     if (!text) return text;
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
 
-  const loadHistory = async () => {
-    if (!sessionId.trim()) return;
+  const loadHistory = async (sid: string) => {
+    if (!sid.trim()) return;
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/chat/history/${sessionId}`
+        `${import.meta.env.VITE_API_URL}/chat/history/${sid}`
       );
+      setSessionId(sid);
       setMsgs(res.data.messages || []);
     } catch (e) {
       console.error(e);
       alert("Error loading history");
+    }
+  };
+
+  // Load last session
+  const loadLastSession = () => {
+    const sid = localStorage.getItem("lastSessionId");
+    if (sid) {
+      setSessionId(sid);
+      loadHistory(sid);
     }
   };
 
@@ -82,16 +101,17 @@ function App() {
     const safeText = truncateText(trimmed, 2000);
 
     try {
+      const sessionIdToUse = sessionIdInput || sessionId;
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/chat/message`,
         {
           message: safeText,
-          sessionId: sessionId.trim() ? sessionId : undefined,
+          sessionId: sessionIdToUse.trim() ? sessionIdToUse : undefined,
         }
       );
 
       const replyText = res.data.reply || "No reply";
-
+      setSessionId(res.data.sessionId);
       setMsgs((prev) => [
         ...prev,
         { sender: "ai", text: replyText, created_at: new Date().toISOString() },
@@ -152,14 +172,24 @@ function App() {
         <Typography variant="h6">AI Live Chat Agent</Typography>
 
         <Box sx={{ display: "flex", gap: 1 }}>
+          <Tooltip title="Load Last Session">
+            <IconButton onClick={loadLastSession}>
+              <RestoreIcon />
+            </IconButton>
+          </Tooltip>
           <TextField
             size="small"
             placeholder="Session ID"
-            value={sessionId}
-            onChange={(e) => setSessionId(e.target.value)}
+            value={sessionIdInput}
+            onChange={(e) => setSessionIdInput(e.target.value)}
             sx={{ width: 200 }}
           />
-          <Button variant="contained" onClick={loadHistory}>
+          <Button
+            variant="contained"
+            onClick={() => {
+              loadHistory(sessionIdInput);
+            }}
+          >
             Load
           </Button>
         </Box>
