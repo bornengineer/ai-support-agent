@@ -62,6 +62,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
           color="primary"
           onClick={() => onLoadHistory(sessionIdInput)}
           sx={{ borderRadius: 2 }}
+          disabled={sessionIdInput.trim() === ""}
         >
           Load
         </Button>
