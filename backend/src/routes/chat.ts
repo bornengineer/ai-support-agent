@@ -39,4 +39,19 @@ router.post("/message", async (req, res) => {
   }
 });
 
+router.get("/history/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+  if (!sessionId) return res.status(400).json({ error: "No sessionId" });
+
+  try {
+    const result = await pool.query(
+      `SELECT id, sender, text, created_at FROM messages WHERE conversation_id=$1 ORDER BY id`,
+      [sessionId]
+    );
+    return res.json({ messages: result.rows });
+  } catch (e) {
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+
 export default router;
