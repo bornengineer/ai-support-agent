@@ -15,6 +15,7 @@ A full-stack AI-powered customer support chat widget that simulates a live suppo
 - **Frontend**: React, Vite, TypeScript, Generic UI Components.
 - **Backend**: Node.js, Express, TypeScript.
 - **Database**: PostgreSQL.
+- **Caching**: Redis.
 - **AI/LLM**: Groq SDK (compatible with OpenAI/Anthropic APIs).
 
 ---

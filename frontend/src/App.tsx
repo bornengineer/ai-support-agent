@@ -1,151 +1,18 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
-import {
-  Box,
-  TextField,
-  IconButton,
-  Typography,
-  Paper,
-  CircularProgress,
-  Button,
-  Tooltip,
-} from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
-import RestoreIcon from "@mui/icons-material/Restore";
-import axios from "axios";
-import { marked } from "marked";
-
-type Msg = {
-  id?: number;
-  sender: "user" | "ai";
-  text: string;
-  created_at?: string;
-};
+import { Box } from "@mui/material";
+import { useChat } from "./hooks/useChat";
+import { ChatHeader } from "./components/ChatHeader";
+import { MessageList } from "./components/MessageList";
+import { ChatInput } from "./components/ChatInput";
 
 function App() {
-  const [sessionId, setSessionId] = useState("");
-  const [sessionIdInput, setSessionIdInput] = useState("");
-  const [msgs, setMsgs] = useState<Msg[]>([]);
-  const [input, setInput] = useState("");
-  const [pending, setPending] = useState(false);
-  const [typing, setTyping] = useState(false);
-
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [shouldFocus, setShouldFocus] = useState(false);
-
-  useLayoutEffect(() => {
-    if (shouldFocus) {
-      inputRef.current?.focus();
-      setShouldFocus(false);
-    }
-  }, [shouldFocus]);
-
-  // auto scroll
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [msgs, typing]);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    if (sessionId) {
-      localStorage.setItem("lastSessionId", sessionId);
-    }
-  }, [sessionId]);
-
-  const truncateText = (text: string, maxLength = 2000) => {
-    if (!text) return text;
-    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
-  };
-
-  const loadHistory = async (sid: string) => {
-    if (!sid.trim()) return;
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/chat/history/${sid}`
-      );
-      setSessionId(sid);
-      setMsgs(res.data.messages || []);
-    } catch (e) {
-      console.error(e);
-      alert("Error loading history");
-    }
-  };
-
-  // Load last session
-  const loadLastSession = () => {
-    const sid = localStorage.getItem("lastSessionId");
-    if (sid) {
-      setSessionId(sid);
-      loadHistory(sid);
-    }
-  };
-
-  const sendMessage = async () => {
-    const trimmed = input.trim();
-    if (!trimmed || pending) return;
-
-    setInput("");
-    setPending(true);
-    setTyping(true);
-
-    // show full message locally
-    setMsgs((prev) => [
-      ...prev,
-      { sender: "user", text: trimmed, created_at: new Date().toISOString() },
-    ]);
-
-    // truncated for API
-    const safeText = truncateText(trimmed, 2000);
-
-    try {
-      const sessionIdToUse = sessionIdInput || sessionId;
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/chat/message`,
-        {
-          message: safeText,
-          sessionId: sessionIdToUse.trim() ? sessionIdToUse : undefined,
-        }
-      );
-
-      const replyText = res.data.reply || "No reply";
-      setSessionId(res.data.sessionId);
-      setMsgs((prev) => [
-        ...prev,
-        { sender: "ai", text: replyText, created_at: new Date().toISOString() },
-      ]);
-    } catch (err) {
-      setMsgs((prev) => [
-        ...prev,
-        { sender: "ai", text: "Server Error. Try again later." },
-      ]);
-    } finally {
-      setPending(false);
-      setTyping(false);
-
-      // Focus input again
-      setShouldFocus(true);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
-  const renderTime = (ts?: string) => {
-    if (!ts) return "";
-    const d = new Date(ts);
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
-
-  const formatMsgHTML = (txt: string) => {
-    return { __html: marked.parse(txt) };
-  };
+  const {
+    msgs,
+    pending,
+    typing,
+    loadHistory,
+    loadLastSession,
+    sendMessage,
+  } = useChat();
 
   return (
     <Box
@@ -159,154 +26,14 @@ function App() {
         my: 5,
       }}
     >
-      {/* Header */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexDirection: { xs: "column", sm: "row" },
-          gap: 2,
-          mb: 1,
-        }}
-      >
-        <Typography variant="h6">AI Live Chat Agent</Typography>
+      <ChatHeader
+        onLoadHistory={loadHistory}
+        onLoadLastSession={loadLastSession}
+      />
 
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Tooltip title="Load Last Session">
-            <IconButton onClick={loadLastSession}>
-              <RestoreIcon />
-            </IconButton>
-          </Tooltip>
-          <TextField
-            size="small"
-            placeholder="Session ID"
-            value={sessionIdInput}
-            onChange={(e) => setSessionIdInput(e.target.value)}
-            sx={{ width: 200 }}
-          />
-          <Button
-            variant="contained"
-            onClick={() => {
-              loadHistory(sessionIdInput);
-            }}
-          >
-            Load
-          </Button>
-        </Box>
-      </Box>
+      <MessageList msgs={msgs} typing={typing} />
 
-      {/* Conversation */}
-      <Box
-        sx={{
-          flex: 1,
-          overflowY: "auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: 1,
-          p: 1,
-          bgcolor: "#fafafa",
-          borderRadius: 2,
-          border: "1px solid #ddd",
-        }}
-      >
-        {msgs.map((m, idx) => (
-          <Box
-            key={idx}
-            sx={{
-              display: "flex",
-              justifyContent: m.sender === "user" ? "flex-end" : "flex-start",
-            }}
-          >
-            <Paper
-              elevation={2}
-              sx={{
-                p: 1.1,
-                maxWidth: "80%",
-                position: "relative",
-                bgcolor: m.sender === "user" ? "#1e88e5" : "#ffffff",
-                color: m.sender === "user" ? "#fff" : "#000",
-                mt: m.sender === "user" ? 3 : 0,
-                mb: m.sender === "user" ? 1 : 0,
-              }}
-            >
-              <span dangerouslySetInnerHTML={formatMsgHTML(m.text)} />
-              <Typography sx={{ fontSize: 10, textAlign: "right", mt: 0.5 }}>
-                {renderTime(m.created_at)}
-              </Typography>
-            </Paper>
-          </Box>
-        ))}
-
-        {typing && (
-          <Typography variant="body2" sx={{ color: "#777", ml: 1 }}>
-            Agent is typing...
-          </Typography>
-        )}
-        <div ref={bottomRef} />
-      </Box>
-
-      {/* Input panel */}
-      <Box
-        component="form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          sendMessage();
-        }}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-          mt: 1,
-          p: 1,
-          bgcolor: (theme) =>
-            theme.palette.mode === "light" ? "#f5f5f5" : "#222",
-          borderRadius: 3,
-        }}
-      >
-        <TextField
-          inputRef={inputRef}
-          placeholder="Ask anything..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          fullWidth
-          multiline
-          minRows={1}
-          maxRows={4}
-          disabled={pending}
-          sx={{
-            "& .MuiInputBase-root": {
-              borderRadius: 3,
-              bgcolor: (theme) =>
-                theme.palette.mode === "light" ? "#fff" : "#333",
-              px: 2,
-            },
-          }}
-        />
-
-        <IconButton
-          color="primary"
-          type="submit"
-          disabled={pending || !input.trim()}
-          sx={{
-            bgcolor: (theme) => theme.palette.primary.main,
-            color: "#fff",
-            "&:hover": {
-              bgcolor: (theme) => theme.palette.primary.dark,
-            },
-            p: 1.5,
-            borderRadius: 2,
-            boxShadow: 2,
-          }}
-        >
-          {pending ? (
-            <CircularProgress size={24} sx={{ color: "#fff" }} />
-          ) : (
-            <SendIcon fontSize="medium" />
-          )}
-        </IconButton>
-      </Box>
+      <ChatInput onSend={sendMessage} pending={pending} />
     </Box>
   );
 }
