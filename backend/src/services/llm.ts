@@ -1,5 +1,5 @@
 import Groq from "groq-sdk";
-import { config } from "../../config";
+import { config } from "../config";
 
 const client = new Groq({
   apiKey: config.groqApiKey,
