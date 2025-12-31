@@ -150,7 +150,6 @@ function App() {
   return (
     <Box
       sx={{
-        width: "100%",
         maxWidth: 640,
         mx: "auto",
         p: 1,
@@ -166,6 +165,8 @@ function App() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          flexDirection: { xs: "column", sm: "row" },
+          gap: 2,
           mb: 1,
         }}
       >

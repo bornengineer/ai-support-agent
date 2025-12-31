@@ -33,16 +33,16 @@ Create a PostgreSQL database and run the following SQL to set up the schema:
 
 ```sql
 CREATE TABLE conversations (
-  id VARCHAR(255) PRIMARY KEY,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id TEXT PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE messages (
-  id SERIAL PRIMARY KEY,
-  conversation_id VARCHAR(255) REFERENCES conversations(id),
-  sender VARCHAR(50) NOT NULL, -- 'user' or 'ai'
-  text TEXT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id SERIAL PRIMARY KEY,
+    conversation_id TEXT REFERENCES conversations(id),
+    sender VARCHAR(10),
+    text TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
@@ -120,6 +120,8 @@ CREATE TABLE messages (
 ## ⚖️ Trade-offs & Future Improvements
 
 - **Database**: Currently using raw SQL queries for simplicity. In a real production app, I would use an ORM (Prisma/Drizzle) for type-safe database access and migration management.
-- **Security**: Basic CORS and input validation are implemented. Production would require Rate Limiting (Redis), stricter Content Security Policy, and Authentication.
+- **Security**: Basic CORS and input validation are implemented. Production would require stricter Content Security Policy, and Authentication.
 - **Styling**: Uses basic CSS/styled components. Could be enhanced with Tailwind CSS or a UI library for better theming.
-- **LLM Context**: The conversation history is fetched and sent in full. For very long chats, a sliding window or summarization strategy would be needed to stay within token limits.
+- **Modularization**: We can make the codebase more modular, efficient and optimized by utilizing best code practices.
+- **Testing**: Adding unit and integration tests (backend and frontend) would increase confidence and prevent regressions.
+- **Performance Optimization**: Caching prompt context with Redis or implementing streaming responses would improve responsiveness and lower LLM cost.

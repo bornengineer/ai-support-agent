@@ -43,7 +43,7 @@ are extrapolating beyond the provided store policies.
 /**
  * Generates an AI reply using Groq LLM.
  */
-export async function generateReply(history: string[]) {
+export async function generateReply(history: { sender: string; text: string }[]) {
   try {
     // Keep only the most recent messages for context
     const recentHistory = history.slice(-MAX_HISTORY_MESSAGES);
@@ -63,9 +63,9 @@ clear you are extending beyond these concrete policies only if needed.
 ${STORE_KNOWLEDGE}
         `.trim(),
       },
-      ...recentHistory.map((text) => ({
-        role: "user" as const,
-        content: text,
+      ...recentHistory.map((msg) => ({
+        role: (msg.sender === "ai" ? "assistant" : "user") as "assistant" | "user",
+        content: msg.text,
       })),
     ];
 

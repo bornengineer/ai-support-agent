@@ -21,10 +21,10 @@ router.post("/message", async (req: Request, res: Response) => {
     );
 
     const messagesRes = await pool.query(
-      `SELECT text FROM messages WHERE conversation_id = $1 ORDER BY id`,
+      `SELECT sender, text FROM messages WHERE conversation_id = $1 ORDER BY id`,
       [convoId]
     );
-    const history = messagesRes.rows.map((r: { text: string }) => r.text);
+    const history = messagesRes.rows;
 
     const reply = await generateReply(history);
 
