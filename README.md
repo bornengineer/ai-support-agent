@@ -62,6 +62,7 @@ CREATE TABLE messages (
    PORT=4000
    DATABASE_URL=postgres://user:password@localhost:5432/your_database_name
    GROQ_API_KEY=gsk_your_groq_api_key_here
+   REDIS_URL=redis://localhost:6379
    ```
 4. Build and start the server:
    ```bash
@@ -83,7 +84,12 @@ CREATE TABLE messages (
    ```bash
    npm install
    ```
-3. Start the development server:
+3. Create a `.env` file in `frontend/` (if using env vars) or ensure your `vite.config.ts` / `api.ts` is configured.
+   For this project, you can set the backend URL:
+   ```env
+   VITE_API_URL=http://localhost:4000
+   ```
+4. Start the development server:
    ```bash
    npm run dev
    ```

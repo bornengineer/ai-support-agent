@@ -17,6 +17,9 @@ DATABASE_URL=postgres://user:password@localhost:5432/spur_chat
 # AI Provider Configuration
 # Get your API key from Groq Console: https://console.groq.com/
 GROQ_API_KEY=gsk_...
+
+# Caching Configuration (Redis)
+REDIS_URL=redis://localhost:6379
 ```
 
 ## 🗄️ Database Schema
